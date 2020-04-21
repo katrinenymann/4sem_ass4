@@ -259,6 +259,9 @@ plot(hypothesis(pv_m2, "Languageus:DiagnosisTD < 0"))
 hypothesis(pv_m2, "Languagedk:DiagnosisTD < 0")
 hypothesis(pv_m2, "Languageus:DiagnosisTD < 0")
 
+hypothesis(pv_m2, "Languagedk:DiagnosisTD < Languageus:DiagnosisTD")
+
+
 plot(hypothesis(pv_m2, "Languagedk:DiagnosisTD < Languageus:DiagnosisTD"))
 
 # We add criterion
@@ -267,11 +270,51 @@ pv_m2 <- add_criterion(pv_m2, criterion = "loo")
 
 loo_model_weights(pv_m, pv_m2)
 
+
+conditional_effects(pv_m2)
+plot(conditional_effects(pv_m2), points = T)
+
 ```
 
 Step 4: Now re-run the model with the meta-analytic prior
 - Evaluate model quality. Describe and plot the estimates. 
 ```{r Re-run model with meta-analytic prior}
+# We define priors with metaanalytic finding
+Meta_prior<- c(
+  prior(normal(.2, .3), class = b, coef = "Languagedk"),
+  prior(normal(.2, .3), class = b, coef = "Languageus"),
+  prior(normal(-0.44, .1), class = b, coef = "Languagedk:DiagnosisTD"),
+  prior(normal(-0.44, .1), class = b, coef = "Languageus:DiagnosisTD"),
+  prior(normal(0, .1), class = sd),
+  prior(normal(.32, .1), class = sigma)
+)
+
+# Fit prior model
+pv_m3_prior <- brm(
+  formula = pv_f2,
+  data = d,
+  family = gaussian,
+  prior = Meta_prior,
+  sample_prior = "only", 
+  file = "pv_m3_prior"
+)
+
+#Prior predictive check
+pp_check(pv_m3_prior, nsamples = 100) # Are the generated values in the right magnitude?
+
+## Fitting the model
+pv_m3 <- brm(
+  formula = pv_f2,
+  data = d,
+  family = gaussian,
+  prior = Meta_prior,
+  sample_prior = T, 
+  file = "pv_m3"
+)
+pp_check(pv_m3, nsamples = 100)
+
+# For the first model
+summary(pv_m3)
 
 ```
 
@@ -283,6 +326,32 @@ Step 5: Compare the models
 - Discuss how they compare and whether any of them is best.
 
 ```{r Compare the models}
+# Plot priors and posteriors of the diagnosis effect in both models
+plot(hypothesis(pv_m2, "Languagedk:DiagnosisTD < Languageus:DiagnosisTD"))
+hypothesis(pv_m2, "Languagedk:DiagnosisTD < Languageus:DiagnosisTD")
+plot(hypothesis(pv_m3, "Languagedk:DiagnosisTD < Languageus:DiagnosisTD"))
+hypothesis(pv_m3, "Languagedk:DiagnosisTD < Languageus:DiagnosisTD")
+
+# Compare posteriors between the two models
+plot(hypothesis(pv_m2, "Languagedk:DiagnosisTD < 0"))
+hypothesis(pv_m2, "Languagedk:DiagnosisTD < 0")
+plot(hypothesis(pv_m3, "Languagedk:DiagnosisTD < 0"))
+hypothesis(pv_m3, "Languagedk:DiagnosisTD < 0")
+
+plot(hypothesis(pv_m2, "Languageus:DiagnosisTD < 0"))
+hypothesis(pv_m2, "Languagedk:DiagnosisTD < 0")
+plot(hypothesis(pv_m3, "Languageus:DiagnosisTD < 0"))
+hypothesis(pv_m3, "Languagedk:DiagnosisTD < 0")
+
+# Compare models
+# We add criterion
+pv_m2 <- add_criterion(pv_m2, criterion = "loo")
+pv_m3 <- add_criterion(pv_m3, criterion = "loo")
+
+loo_model_weights(pv_m3, pv_m2)
+
+plot(conditional_effects(pv_m3))
+plot(conditional_effects(pv_m3), points = T)
 
 ```
 

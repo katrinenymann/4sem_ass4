@@ -574,6 +574,21 @@ hypothesis(pv_m2, "Languageus:DiagnosisTD < 0")
     ## Posterior probabilities of point hypotheses assume equal prior probabilities.
 
 ``` r
+hypothesis(pv_m2, "Languagedk:DiagnosisTD < Languageus:DiagnosisTD")
+```
+
+    ## Hypothesis Tests for class b:
+    ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
+    ## 1 (Languagedk:Diagn... < 0    -0.17      0.11    -0.36     0.01      14.56
+    ##   Post.Prob Star
+    ## 1      0.94     
+    ## ---
+    ## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
+    ## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
+    ## for two-sided hypotheses, the value tested against lies outside the 95%-CI.
+    ## Posterior probabilities of point hypotheses assume equal prior probabilities.
+
+``` r
 plot(hypothesis(pv_m2, "Languagedk:DiagnosisTD < Languageus:DiagnosisTD"))
 ```
 
@@ -616,13 +631,282 @@ loo_model_weights(pv_m, pv_m2)
     ## pv_m  0.159 
     ## pv_m2 0.841
 
+``` r
+conditional_effects(pv_m2)
+```
+
+![](Assignment4_Group6_files/figure-markdown_github/Regression%20model-10.png)![](Assignment4_Group6_files/figure-markdown_github/Regression%20model-11.png)
+
+``` r
+plot(conditional_effects(pv_m2), points = T)
+```
+
+![](Assignment4_Group6_files/figure-markdown_github/Regression%20model-12.png)![](Assignment4_Group6_files/figure-markdown_github/Regression%20model-13.png)
+
 Step 4: Now re-run the model with the meta-analytic prior - Evaluate
 model quality. Describe and plot the estimates.
+
+``` r
+# We define priors with metaanalytic finding
+Meta_prior<- c(
+  prior(normal(.2, .3), class = b, coef = "Languagedk"),
+  prior(normal(.2, .3), class = b, coef = "Languageus"),
+  prior(normal(-0.44, .1), class = b, coef = "Languagedk:DiagnosisTD"),
+  prior(normal(-0.44, .1), class = b, coef = "Languageus:DiagnosisTD"),
+  prior(normal(0, .1), class = sd),
+  prior(normal(.32, .1), class = sigma)
+)
+
+# Fit prior model
+pv_m3_prior <- brm(
+  formula = pv_f2,
+  data = d,
+  family = gaussian,
+  prior = Meta_prior,
+  sample_prior = "only", 
+  file = "pv_m3_prior"
+)
+
+#Prior predictive check
+pp_check(pv_m3_prior, nsamples = 100) # Are the generated values in the right magnitude?
+```
+
+![](Assignment4_Group6_files/figure-markdown_github/Re-run%20model%20with%20meta-analytic%20prior-1.png)
+
+``` r
+## Fitting the model
+pv_m3 <- brm(
+  formula = pv_f2,
+  data = d,
+  family = gaussian,
+  prior = Meta_prior,
+  sample_prior = T, 
+  file = "pv_m3"
+)
+pp_check(pv_m3, nsamples = 100)
+```
+
+![](Assignment4_Group6_files/figure-markdown_github/Re-run%20model%20with%20meta-analytic%20prior-2.png)
+
+``` r
+# For the first model
+summary(pv_m3)
+```
+
+    ##  Family: gaussian 
+    ##   Links: mu = identity; sigma = identity 
+    ## Formula: PitchVariability ~ 0 + Language + Language:Diagnosis + (1 | ID) 
+    ##    Data: d (Number of observations: 1074) 
+    ## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+    ##          total post-warmup samples = 4000
+    ## 
+    ## Group-Level Effects: 
+    ## ~ID (Number of levels: 149) 
+    ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+    ## sd(Intercept)     0.52      0.03     0.45     0.59 1.00     1639     2363
+    ## 
+    ## Population-Level Effects: 
+    ##                        Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS
+    ## Languagedk                -0.05      0.08    -0.21     0.11 1.01      844
+    ## Languageus                 0.77      0.07     0.62     0.92 1.00     1789
+    ## Languagedk:DiagnosisTD    -0.39      0.08    -0.55    -0.24 1.00     1619
+    ## Languageus:DiagnosisTD    -0.22      0.08    -0.38    -0.06 1.00     2821
+    ##                        Tail_ESS
+    ## Languagedk                 1385
+    ## Languageus                 2290
+    ## Languagedk:DiagnosisTD     1895
+    ## Languageus:DiagnosisTD     3061
+    ## 
+    ## Family Specific Parameters: 
+    ##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+    ## sigma     0.70      0.02     0.67     0.73 1.00     4265     2536
+    ## 
+    ## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+    ## and Tail_ESS are effective sample size measures, and Rhat is the potential
+    ## scale reduction factor on split chains (at convergence, Rhat = 1).
 
 Step 5: Compare the models - Plot priors and posteriors of the diagnosis
 effect in both models - Compare posteriors between the two models -
 Compare the two models (LOO) - Discuss how they compare and whether any
 of them is best.
+
+``` r
+# Plot priors and posteriors of the diagnosis effect in both models
+plot(hypothesis(pv_m2, "Languagedk:DiagnosisTD < Languageus:DiagnosisTD"))
+```
+
+![](Assignment4_Group6_files/figure-markdown_github/Compare%20the%20models-1.png)
+
+``` r
+hypothesis(pv_m2, "Languagedk:DiagnosisTD < Languageus:DiagnosisTD")
+```
+
+    ## Hypothesis Tests for class b:
+    ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
+    ## 1 (Languagedk:Diagn... < 0    -0.17      0.11    -0.36     0.01      14.56
+    ##   Post.Prob Star
+    ## 1      0.94     
+    ## ---
+    ## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
+    ## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
+    ## for two-sided hypotheses, the value tested against lies outside the 95%-CI.
+    ## Posterior probabilities of point hypotheses assume equal prior probabilities.
+
+``` r
+plot(hypothesis(pv_m3, "Languagedk:DiagnosisTD < Languageus:DiagnosisTD"))
+```
+
+![](Assignment4_Group6_files/figure-markdown_github/Compare%20the%20models-2.png)
+
+``` r
+hypothesis(pv_m3, "Languagedk:DiagnosisTD < Languageus:DiagnosisTD")
+```
+
+    ## Hypothesis Tests for class b:
+    ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
+    ## 1 (Languagedk:Diagn... < 0    -0.17      0.11    -0.35     0.01      14.94
+    ##   Post.Prob Star
+    ## 1      0.94     
+    ## ---
+    ## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
+    ## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
+    ## for two-sided hypotheses, the value tested against lies outside the 95%-CI.
+    ## Posterior probabilities of point hypotheses assume equal prior probabilities.
+
+``` r
+# Compare posteriors between the two models
+plot(hypothesis(pv_m2, "Languagedk:DiagnosisTD < 0"))
+```
+
+![](Assignment4_Group6_files/figure-markdown_github/Compare%20the%20models-3.png)
+
+``` r
+hypothesis(pv_m2, "Languagedk:DiagnosisTD < 0")
+```
+
+    ## Hypothesis Tests for class b:
+    ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
+    ## 1 (Languagedk:Diagn... < 0     -0.1      0.08    -0.23     0.04       8.52
+    ##   Post.Prob Star
+    ## 1       0.9     
+    ## ---
+    ## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
+    ## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
+    ## for two-sided hypotheses, the value tested against lies outside the 95%-CI.
+    ## Posterior probabilities of point hypotheses assume equal prior probabilities.
+
+``` r
+plot(hypothesis(pv_m3, "Languagedk:DiagnosisTD < 0"))
+```
+
+![](Assignment4_Group6_files/figure-markdown_github/Compare%20the%20models-4.png)
+
+``` r
+hypothesis(pv_m3, "Languagedk:DiagnosisTD < 0")
+```
+
+    ## Hypothesis Tests for class b:
+    ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
+    ## 1 (Languagedk:Diagn... < 0    -0.39      0.08    -0.52    -0.26        Inf
+    ##   Post.Prob Star
+    ## 1         1    *
+    ## ---
+    ## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
+    ## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
+    ## for two-sided hypotheses, the value tested against lies outside the 95%-CI.
+    ## Posterior probabilities of point hypotheses assume equal prior probabilities.
+
+``` r
+plot(hypothesis(pv_m2, "Languageus:DiagnosisTD < 0"))
+```
+
+![](Assignment4_Group6_files/figure-markdown_github/Compare%20the%20models-5.png)
+
+``` r
+hypothesis(pv_m2, "Languagedk:DiagnosisTD < 0")
+```
+
+    ## Hypothesis Tests for class b:
+    ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
+    ## 1 (Languagedk:Diagn... < 0     -0.1      0.08    -0.23     0.04       8.52
+    ##   Post.Prob Star
+    ## 1       0.9     
+    ## ---
+    ## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
+    ## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
+    ## for two-sided hypotheses, the value tested against lies outside the 95%-CI.
+    ## Posterior probabilities of point hypotheses assume equal prior probabilities.
+
+``` r
+plot(hypothesis(pv_m3, "Languageus:DiagnosisTD < 0"))
+```
+
+![](Assignment4_Group6_files/figure-markdown_github/Compare%20the%20models-6.png)
+
+``` r
+hypothesis(pv_m3, "Languagedk:DiagnosisTD < 0")
+```
+
+    ## Hypothesis Tests for class b:
+    ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
+    ## 1 (Languagedk:Diagn... < 0    -0.39      0.08    -0.52    -0.26        Inf
+    ##   Post.Prob Star
+    ## 1         1    *
+    ## ---
+    ## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
+    ## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
+    ## for two-sided hypotheses, the value tested against lies outside the 95%-CI.
+    ## Posterior probabilities of point hypotheses assume equal prior probabilities.
+
+``` r
+# Compare models
+# We add criterion
+pv_m2 <- add_criterion(pv_m2, criterion = "loo")
+```
+
+    ## Warning: Found 1 observations with a pareto_k > 0.7 in model 'pv_m2'. It is
+    ## recommended to set 'reloo = TRUE' in order to calculate the ELPD without the
+    ## assumption that these observations are negligible. This will refit the model 1
+    ## times to compute the ELPDs for the problematic observations directly.
+
+    ## Automatically saving the model object in 'pv_m2.rds'
+
+``` r
+pv_m3 <- add_criterion(pv_m3, criterion = "loo")
+```
+
+    ## Warning: Found 3 observations with a pareto_k > 0.7 in model 'pv_m3'. It is
+    ## recommended to set 'reloo = TRUE' in order to calculate the ELPD without the
+    ## assumption that these observations are negligible. This will refit the model 3
+    ## times to compute the ELPDs for the problematic observations directly.
+
+    ## Automatically saving the model object in 'pv_m3.rds'
+
+``` r
+loo_model_weights(pv_m3, pv_m2)
+```
+
+    ## Warning: Some Pareto k diagnostic values are too high. See help('pareto-k-diagnostic') for details.
+
+    ## Warning: Some Pareto k diagnostic values are too high. See help('pareto-k-diagnostic') for details.
+
+    ## Method: stacking
+    ## ------
+    ##       weight
+    ## pv_m3 0.000 
+    ## pv_m2 1.000
+
+``` r
+plot(conditional_effects(pv_m3))
+```
+
+![](Assignment4_Group6_files/figure-markdown_github/Compare%20the%20models-7.png)![](Assignment4_Group6_files/figure-markdown_github/Compare%20the%20models-8.png)
+
+``` r
+plot(conditional_effects(pv_m3), points = T)
+```
+
+![](Assignment4_Group6_files/figure-markdown_github/Compare%20the%20models-9.png)![](Assignment4_Group6_files/figure-markdown_github/Compare%20the%20models-10.png)
 
 Step 6: Prepare a nice write up of the analysis and answer the questions
 at the top.
