@@ -404,8 +404,8 @@ get_prior(pv_f2, family = gaussian, d)
 ``` r
 # We define priors
 NS_prior1 <- c(
-  prior(normal(0, .1), class = b, coef = "Languagedk"),
-  prior(normal(0, .1), class = b, coef = "Languageus"),
+  prior(normal(0, .3), class = b, coef = "Languagedk"),
+  prior(normal(0, .3), class = b, coef = "Languageus"),
   prior(normal(0, .1), class = b, coef = "Languagedk:DiagnosisTD"),
   prior(normal(0, .1), class = b, coef = "Languageus:DiagnosisTD"),
   prior(normal(0, .1), class = sd),
@@ -509,23 +509,23 @@ summary(pv_m2)
     ## Group-Level Effects: 
     ## ~ID (Number of levels: 149) 
     ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-    ## sd(Intercept)     0.52      0.03     0.45     0.58 1.00     1626     2529
+    ## sd(Intercept)     0.51      0.03     0.44     0.57 1.00     1503     2375
     ## 
     ## Population-Level Effects: 
     ##                        Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS
-    ## Languagedk                -0.14      0.06    -0.26    -0.02 1.00     1390
-    ## Languageus                 0.43      0.06     0.31     0.55 1.00     2543
-    ## Languagedk:DiagnosisTD    -0.14      0.08    -0.29     0.01 1.00     1857
-    ## Languageus:DiagnosisTD     0.17      0.08     0.02     0.32 1.00     3306
+    ## Languagedk                -0.22      0.08    -0.37    -0.07 1.01      981
+    ## Languageus                 0.64      0.08     0.49     0.79 1.00     1725
+    ## Languagedk:DiagnosisTD    -0.10      0.08    -0.25     0.06 1.00     1649
+    ## Languageus:DiagnosisTD     0.07      0.08    -0.09     0.24 1.00     3048
     ##                        Tail_ESS
-    ## Languagedk                 2166
-    ## Languageus                 3139
-    ## Languagedk:DiagnosisTD     2832
-    ## Languageus:DiagnosisTD     3350
+    ## Languagedk                 1906
+    ## Languageus                 1934
+    ## Languagedk:DiagnosisTD     2362
+    ## Languageus:DiagnosisTD     3143
     ## 
     ## Family Specific Parameters: 
     ##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-    ## sigma     0.70      0.02     0.67     0.73 1.00     4255     3014
+    ## sigma     0.70      0.02     0.67     0.73 1.00     4133     3022
     ## 
     ## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
     ## and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -549,9 +549,9 @@ hypothesis(pv_m2, "Languagedk:DiagnosisTD < 0")
 
     ## Hypothesis Tests for class b:
     ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-    ## 1 (Languagedk:Diagn... < 0    -0.14      0.08    -0.26    -0.01       28.2
+    ## 1 (Languagedk:Diagn... < 0     -0.1      0.08    -0.23     0.04       8.52
     ##   Post.Prob Star
-    ## 1      0.97    *
+    ## 1       0.9     
     ## ---
     ## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
     ## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
@@ -564,9 +564,9 @@ hypothesis(pv_m2, "Languageus:DiagnosisTD < 0")
 
     ## Hypothesis Tests for class b:
     ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
-    ## 1 (Languageus:Diagn... < 0     0.17      0.08     0.04     0.29       0.01
+    ## 1 (Languageus:Diagn... < 0     0.07      0.08    -0.07     0.21       0.23
     ##   Post.Prob Star
-    ## 1      0.01     
+    ## 1      0.18     
     ## ---
     ## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
     ## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
@@ -595,9 +595,9 @@ pv_m <- add_criterion(pv_m, criterion = "loo")
 pv_m2 <- add_criterion(pv_m2, criterion = "loo")
 ```
 
-    ## Warning: Found 2 observations with a pareto_k > 0.7 in model 'pv_m2'. It is
+    ## Warning: Found 1 observations with a pareto_k > 0.7 in model 'pv_m2'. It is
     ## recommended to set 'reloo = TRUE' in order to calculate the ELPD without the
-    ## assumption that these observations are negligible. This will refit the model 2
+    ## assumption that these observations are negligible. This will refit the model 1
     ## times to compute the ELPDs for the problematic observations directly.
 
     ## Automatically saving the model object in 'pv_m2.rds'
@@ -613,8 +613,8 @@ loo_model_weights(pv_m, pv_m2)
     ## Method: stacking
     ## ------
     ##       weight
-    ## pv_m  0.163 
-    ## pv_m2 0.837
+    ## pv_m  0.159 
+    ## pv_m2 0.841
 
 Step 4: Now re-run the model with the meta-analytic prior - Evaluate
 model quality. Describe and plot the estimates.
